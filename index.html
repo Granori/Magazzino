@@ -1,0 +1,236 @@
+<!-- Crea un programma JavaScript che gestisce un inventario di prodotti di un negozio, utilizzando un array di oggetti per rappresentare l'inventario. 
+Ogni prodotto che è anche un oggetto è identificato da un codice univoco e ha inoltre le seguenti proprietà: nome, prezzo e quantità disponibile.
+Occorre realizzare le funzioni che  permettono di aggiungere, rimuovere e aggiornare i prodotti dell'inventario. 
+Oltre alla gestione degli elementi dell'inventario, viene richiesto anche il calcolo del valore totale dell'inventario, 
+che consiste nel prezzo di ogni prodotto moltiplicato per la quantità disponibile e sommato per tutti i prodotti dell'inventario. 
+Un'altra funzione invece permette di capire quali sono i prodotti che sono da riordinare ossia quelli che hanno la quantità disponibile minore di 5 -->
+<!-- setTimeout() Permette di eseguire una determinata funzione dopo un certo lasso di tempo, espresso
+in “millisecondi”.
+setInterval() questo metodo permette di eseguire una determinata funzione ad un intervallo regolare
+espresso in millisecondi, ad esempio quando occorre aggiornare un elemento del Dom in modo
+ciclico.
+clearInterval() permette di interrompere l’esecuzione del metodo setInterval() -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Magazzino</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container bg-body-secondary my-5 p-3">
+        <p class="fs-1 text-center fw-semibold">Negozio</p>
+
+        <!--ra. Template --------------------------------------------------------------------------------------------->
+        <div class="d-none" id="template">
+            <div class="card" style="width: 18rem;" id="id">
+                <div class="card-body">
+                  <h5 class="card-title" id="nomeTemp"></h5>
+                  <h6 class="card-subtitle mb-2 text-body-secondary" id="codiceTemp"></h6>
+                  <p class="card-text" id="prezzo_unitaTemp"></p>
+                </div>
+              </div>
+        </div>
+        <!--ra.  ------------------------------------------------------------>
+
+        <!--ar. Inventario ------------------------------------------------------------------------------------------->
+        <p class="fw-medium fst-italic fs-4 mt-5 border-bottom border-secondary">Inventario</p>
+        <div class="d-flex container justify-content-evenly" id="inventario">
+            
+        </div>
+        <!--ar.  ------------------------------------------------------------>
+
+        <!--ro. Funzioni --------------------------------------------------------------------------------------------->
+        <p class="fw-medium fst-italic fs-4 mt-5 border-bottom border-secondary">Funzioni</p>
+        <div class="d-flex justify-content-evenly">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Aggiungi Materiale</h5>
+                    <label for="nomeNuovo">Nome: </label>
+                    <input type="text" class="form-control" id="nomeNuovo" autocomplete="off">
+                    <label for="codiceNuovo">Codice: </label>
+                    <input type="text" class="form-control" id="codiceNuovo" autocomplete="off">
+                    <label for="prezzoNuovo">Prezzo: </label>
+                    <input type="text" class="form-control" id="prezzoNuovo" autocomplete="off">
+                    <label for="unitaNuovo">Unità: </label>
+                    <input type="text" class="form-control" id="unitaNuovo" autocomplete="off">
+                    <button type="button" class="btn btn-primary mt-2" id="aggiungi">Aggiungi</button>
+
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Rimuovi Materiale</h5>
+                    <label for="codiceRimuovi">Codice: </label>
+                    <input type="text" class="form-control" id="codiceRimuovi" autocomplete="off">
+                    <button type="button" class="btn btn-danger mt-2" id="rimuovi">Rimuovi</button>
+                </div>
+
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Valore Totale</h5>
+                    <p class="fs-4" id="valore"></p>
+                    <button type="button" class="btn btn-success mt-2" id="valoretot">Calcola</button>
+                </div>
+
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Materiali da Riordinare</h5>
+                    <p class="fs-4" id="materiali"></p>
+                    <button type="button" class="btn btn-secondary mt-2" id="riordine">Trova</button>
+                </div>
+
+            </div>
+        </div>
+        <!--ro.  ------------------------------------------------------------>
+    </div>
+
+    <script>
+        class inventario {
+            constructor () {
+                this.prodotti = [];
+            }
+            
+            aggProdotto (prodotto) {
+                this.prodotti = this.prodotti.concat(prodotto);
+            }
+            rimProdotto (codice) {
+                for (let i=0; i<this.prodotti.length; i++) {
+                    if (this.prodotti[i].getCodice() == codice) {
+                        this.prodotti[i].rimTabella();
+                        this.prodotti.splice(i, 1);
+                    }
+                }
+            }
+            valoreTot () {
+                let valore = 0;
+                for (let i=0; i<this.prodotti.length; i++) {
+                    valore += this.prodotti[i].getPrezzo() * this.prodotti[i].getUnita();
+                }
+                return valore;
+            }
+            daRiordinare () {
+                let array = [];
+                for (let i=0; i<this.prodotti.length; i++) {
+                    if (this.prodotti[i].getUnita() < 5)
+                        array.push(this.prodotti[i]);
+                }
+
+                return array;
+            }
+
+            getProdotti () {
+                let array = [];
+                for (let i=0; i<this.prodotti.length; i++)
+                    array.push(this.prodotti[i]);
+
+                return array;
+            }
+
+        }
+
+        class prodotto {
+            constructor (codice, nome, prezzo, unita) {
+               
+                this.codice = codice;
+                this.nome = nome;
+                this.prezzo = prezzo;
+                this.unita = unita;
+                
+                let template = document.getElementById("template");
+                let inventario = document.getElementById("inventario");
+                
+                let idTabella = document.getElementById("id");
+                idTabella.id = codice;
+                
+                document.getElementById("nomeTemp").innerHTML = nome;
+                document.getElementById("codiceTemp").innerHTML = codice;
+                document.getElementById("prezzo_unitaTemp").innerHTML = `Prezzo: ${prezzo}\nUnità: ${unita}`;
+                
+                inventario.innerHTML += template.innerHTML;
+                idTabella.id = "id";
+            }
+            
+            getCodice () {
+                return this.codice;
+            }
+            getPrezzo () {
+                return this.prezzo;
+            }
+            getUnita () {
+                return this.unita;
+            }
+
+            rimTabella () {
+                document.getElementById(this.codice).remove();
+            }
+
+        }
+
+        let negozio = new inventario();
+        negozio.aggProdotto(new prodotto("AA11", "vernice_bianca", 14.99, 6));
+        negozio.aggProdotto(new prodotto("AA22", "vernice_nera", 14.99, 6));
+        negozio.aggProdotto(new prodotto("AA33", "vernice_verde", 10, 3));
+        negozio.aggProdotto(new prodotto("AA44", "vernice_arancione", 12, 2));
+
+        document.getElementById("aggiungi").addEventListener("click", aggiungi);
+        document.getElementById("rimuovi").addEventListener("click", rimuovi);
+        document.getElementById("valoretot").addEventListener("click", valoretotale);
+        document.getElementById("riordine").addEventListener("click", ordini);
+
+        function aggiungi() {
+            let nomeInput = document.getElementById("nomeNuovo");
+            let codiceInput = document.getElementById("codiceNuovo");
+            let prezzoInput = document.getElementById("prezzoNuovo");
+            let unitaInput = document.getElementById("unitaNuovo");
+
+            let prezzo = parseFloat(prezzoInput.value);
+            let unita = parseInt(unitaInput.value);
+            
+            if (nomeInput.value != "" && codiceInput.value != "" && prezzo > 0) {
+                if (unita < 0)
+                    unita = 0;
+                negozio.aggProdotto(new prodotto(codiceInput.value, nomeInput.value, prezzo, unita));
+
+                nomeInput.value = "";
+                codiceInput.value = "";
+                prezzoInput.value = "";
+                unitaInput.value = "";
+            }else console.log("NO")
+        }
+        function rimuovi() {
+            let codice = document.getElementById("codiceRimuovi");
+
+            if (codice.value != "")
+                negozio.rimProdotto(codice.value)
+
+            codice.value = "";
+        }
+        function valoretotale() {
+            document.getElementById("valore").innerHTML = negozio.valoreTot();
+            let timeout = setTimeout(function() {pulisci("valore")}, 5000);
+        }
+        function ordini() {
+            materiali = document.getElementById("materiali");
+            materiali.innerHTML = "";
+            let array = negozio.daRiordinare();
+            for (let i=0; i<array.length; i++)
+                materiali.innerHTML += array[i].getCodice() + " ";
+
+            let timeout = setTimeout(function() {pulisci("materiali")}, 5000);
+        }
+        function pulisci(id) {
+            document.getElementById(id).innerHTML = "";
+        }
+        console.log(negozio);
+        console.log(negozio.valoreTot());
+        console.log(negozio.daRiordinare());
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </body>
+</html>
